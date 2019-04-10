@@ -29,6 +29,7 @@ var output = function(input){
     var h = Math.floor((input%timeBase.d)/timeBase.h);
     var d = Math.floor((input)/timeBase.d);
     return  '<table>'
+        +   '<tr><th>from: '+formatter(Date.parse($('#from').val()))+'</th><th>to: '+formatter(Date.parse($('#to').val()))+'</th></tr>'
         +   '<tr><th>days:</th><td>'+Math.floor(input/timeBase.d)+'[days] '+h+'[hours] '+m+'[minutes] '+s+'[s] '+ms+'[ms]</td></tr>'
         +   '<tr><th>hours:</th><td>'+Math.floor(input/timeBase.h)+'[hours] '+m+'[minutes] '+s+'[s] '+ms+'[ms]</td></tr>'
         +   '<tr><th>minutes:</th><td>'+Math.floor(input/timeBase.m)+'[m] '+s+'[s] '+ms+'[ms]</td></tr>'

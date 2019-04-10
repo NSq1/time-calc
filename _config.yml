@@ -1,0 +1,9 @@
+# Site settings
+title: Time-Calc
+description: Calculates time between dates
+
+remote_theme: g2forge/charcoal
+author_name: NSq1
+author_url: https://github.com/NSq1/
+repository: NSq1/time-calc
+toc: true                             # Adds a table of contents to the left sidebar of the page

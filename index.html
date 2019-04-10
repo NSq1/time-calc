@@ -3,4 +3,56 @@ layout: default
 toc: false
 ---
 <script>{% include time_calc_customize.js %}</script>
-Hello
+<table>
+    <tr><th>FROM</th><th>TO</th></tr>
+    <tr><td><input id="from" type="text"/><input id="from_now" type="button" value="NOW"/></td><td><input id="to" type="text"/><input id="to_now" type="button" value="NOW"/></td></tr>
+    <tr><td></td></td><td></td></tr>
+    <tr><td id="output"></td></tr>
+</table>
+<script>
+var timeBase = {
+    ms : 1,
+    s : 1000,
+    m : 1000*60,
+    h : 1000*60*60,
+    d : 1000*60*60*24,
+    mm : 1000*60*60*24*30,
+    y : 1000*60*60*24*365,
+}
+var timer = function(){
+    return Date.parse($('#to').val()) - Date.parse($('#from').val());
+}
+var output = function(input){
+    var ms = Math.floor((input%timeBase.s)/timeBase.ms);
+    var s = Math.floor((input%timeBase.m)/timeBase.s);
+    var m = Math.floor((input%timeBase.h)/timeBase.m);
+    var h = Math.floor((input%timeBase.d)/timeBase.h);
+    var d = Math.floor((input)/timeBase.d);
+    return  '<table>'
+        +   '<tr><th>days:</th><td>'+Math.floor(input/timeBase.d)+'[days] '+h+'[hours] '+m+'[minutes] '+s+'[s] '+ms+'[ms]</td></tr>'
+        +   '<tr><th>hours:</th><td>'+Math.floor(input/timeBase.h)+'[hours] '+m+'[minutes] '+s+'[s] '+ms+'[ms]</td></tr>'
+        +   '<tr><th>minutes:</th><td>'+Math.floor(input/timeBase.m)+'[m] '+s+'[s] '+ms+'[ms]</td></tr>'
+        +   '<tr><th>seconds:</th><td>'+Math.floor(input/timeBase.s)+'[s] '+ms+'[ms]</td></tr>'
+        +   '<tr><th>miliseconds:</th><td>'+input+'[ms]</td></tr>'
+        +   '</table>';
+}
+$('#from, #to').on(
+    'change', 
+    function(){
+        $('#output').html(output(timer()));
+    });
+$('#from_now').on(
+    'click',
+    function(){
+        $('#from')
+            .val(formatter($.now()))
+            .trigger('change');
+    });
+$('#to_now').on(
+    'click',
+    function(){
+        $('#to')
+            .val(formatter($.now()))
+            .trigger('change');
+    });
+</script>

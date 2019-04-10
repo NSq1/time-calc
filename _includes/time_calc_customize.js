@@ -2,7 +2,7 @@ var href = $(location).attr("href");
 if (href.indexOf('127.0.0.1') > 0) {
     href = href.substr(0, href.lastIndexOf(':4000')) + ':4000/';
 } else {
-    href = href.substr(0, href.lastIndexOf('/timecalc/')) + '/timecalc/';
+    href = href.substr(0, href.lastIndexOf('/time-calc/')) + '/time-calc/';
 }
 var js = { timecalc : href + "assets/js/timecalc.js"
 	,	featherlight : href + "assets/js/featherlight.min.js"

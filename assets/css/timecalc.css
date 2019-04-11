@@ -1,7 +1,8 @@
 #output td:nth-child(1){
 	text-align: right;
 }
-#output th+td{
+.output th+td, 
+.output td:nth-child(1){
 	text-align: right;
 }
 input[type="button"]{

@@ -12,12 +12,21 @@ for (var library in js){
 		console.log(js[library]);
 	}	
 }
-$('head')
-    .append($('<link rel="stylesheet" type="text/css" />')
-        .attr('href', href + 'assets/css/timecalc.css'));
+
 $('head')
     .append($('<link rel="stylesheet" type="text/css" />')
         .attr('href', href + 'assets/css/jquery-ui.css'));    
 $('head')
     .append($('<link rel="stylesheet" type="text/css" />')
-        .attr('href', '//cdn.rawgit.com/noelboss/featherlight/1.7.13/release/featherlight.min.css'));
+        .attr('href', '//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css'));
+$('head')
+    .append($('<link rel="stylesheet" type="text/css" />')
+        .attr('href', href + 'assets/css/timecalc.css'));
+
+
+
+
+
+
+
+

@@ -5,7 +5,6 @@ if (href.indexOf('127.0.0.1') > 0) {
     href = href.substr(0, href.lastIndexOf('/time-calc/')) + '/time-calc/';
 }
 var js = { timecalc : href + "assets/js/timecalc.js"
-	,	featherlight : href + "assets/js/featherlight.min.js"
 }
 for (var library in js){
 	$.getScript(js[library]);
@@ -16,6 +15,9 @@ for (var library in js){
 $('head')
     .append($('<link rel="stylesheet" type="text/css" />')
         .attr('href', href + 'assets/css/timecalc.css'));
+$('head')
+    .append($('<link rel="stylesheet" type="text/css" />')
+        .attr('href', href + 'assets/css/jquery-ui.css'));    
 $('head')
     .append($('<link rel="stylesheet" type="text/css" />')
         .attr('href', '//cdn.rawgit.com/noelboss/featherlight/1.7.13/release/featherlight.min.css'));

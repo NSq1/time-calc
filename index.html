@@ -5,11 +5,16 @@ toc: false
 <script>{% include time_calc_customize.js %}</script>
 <table>
     <tr><th>FROM</th><th>TO</th></tr>
-    <tr><td><input id="from" type="text"/><input id="from_now" type="button" value="NOW"/></td><td><input id="to" type="text"/><input id="to_now" type="button" value="NOW"/></td></tr>
-    <tr><td></td></td><td></td></tr>
+    <tr><td><input id="from" class="from date" type="text"/><input class="from now" type="button" value="NOW"/></td><td><input id="to" class="to date" type="text"/><input class="to now" type="button" value="NOW"/></td></tr>
+    <tr><td><div id="datepicker_from"></div></td></td><td><div id="datepicker_to"></div></td></tr>
     <tr><td id="output"></td></tr>
 </table>
 <script>
+$.getScript('assets/js/jquery-ui.js', function(){
+    $( ".date" ).datepicker({
+        dateFormat: "yy-mm-dd"
+    }); 
+});
 var timeBase = {
     ms : 1,
     s : 1000,
@@ -19,7 +24,27 @@ var timeBase = {
     mm : 1000*60*60*24*30,
     y : 1000*60*60*24*365,
 }
+var getFrom = function(){
+    try{
+        return new Date(Date.parse($('#from').val()));
+    } catch(e){
+        return Date.now();
+    }
+};
+var getTo = function(){
+    try{
+        return new Date(Date.parse($('#to').val()));
+    } catch(e){
+        return Date.now();
+    }
+};
+var formatter = function(timestamp){
+    console.log(timestamp);
+    let dt = new Date(timestamp);
+    return dt.toISOString(); 
+};
 var timer = function(){
+    if ($('#to').val()=='' || $('#from').val()==''){return 0;}
     return Date.parse($('#to').val()) - Date.parse($('#from').val());
 }
 var output = function(input){
@@ -29,7 +54,7 @@ var output = function(input){
     var h = Math.floor((input%timeBase.d)/timeBase.h);
     var d = Math.floor((input)/timeBase.d);
     return  '<table>'
-        +   '<tr><th>from: '+formatter(Date.parse($('#from').val()))+'</th><th>to: '+formatter(Date.parse($('#to').val()))+'</th></tr>'
+        +   '<tr><th>from: '+ getFrom() +'</th><th>to: '+ getTo() +'</th></tr>'
         +   '<tr><th>days:</th><td>'+Math.floor(input/timeBase.d)+'[days] '+h+'[hours] '+m+'[minutes] '+s+'[s] '+ms+'[ms]</td></tr>'
         +   '<tr><th>hours:</th><td>'+Math.floor(input/timeBase.h)+'[hours] '+m+'[minutes] '+s+'[s] '+ms+'[ms]</td></tr>'
         +   '<tr><th>minutes:</th><td>'+Math.floor(input/timeBase.m)+'[m] '+s+'[s] '+ms+'[ms]</td></tr>'
@@ -37,23 +62,18 @@ var output = function(input){
         +   '<tr><th>miliseconds:</th><td>'+input+'[ms]</td></tr>'
         +   '</table>';
 }
-$('#from, #to').on(
+$('.from, .to').on(
     'change', 
     function(){
         $('#output').html(output(timer()));
     });
-$('#from_now').on(
+$('#from_now');
+$('.now').on(
     'click',
     function(){
-        $('#from')
+        $(this).parent().find('.date')
             .val(formatter($.now()))
             .trigger('change');
-    });
-$('#to_now').on(
-    'click',
-    function(){
-        $('#to')
-            .val(formatter($.now()))
-            .trigger('change');
-    });
+    })
+    .trigger('click');
 </script>

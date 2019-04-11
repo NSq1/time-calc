@@ -18,7 +18,7 @@ toc: false
 <script>
 $.getScript('//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js', function(){
     $(".time").timepicker({
-    timeFormat: 'HH:mm',
+    timeFormat: 'HH:mm:ss',
     dynamic: false,
     dropdown: true,
     scrollbar: true,
@@ -48,7 +48,7 @@ var getFrom = function(){
 };
 var getTo = function(){
     try{
-         return new Date(Date.parse($('.to.date').val()+' '+ $('.to.time').val()));
+        return new Date(Date.parse($('.to.date').val()+' '+$('.to.time').val()));
     } catch(e){
         return Date.now();
     }
@@ -67,12 +67,7 @@ var formatTime = function(timestamp){
     let dt = new Date(timestamp);
     return (dt.getUTCHours() < 10 ? '0'+dt.getUTCHours() : dt.getUTCHours()) + ':'
         + (dt.getUTCMinutes() < 10 ? '0'+dt.getUTCMinutes() : dt.getUTCMinutes()) + ':'
-        + (dt.getUTCSeconds() < 10 ? '0'+dt.getUTCSeconds() : dt.getUTCSeconds()) + '.'
-        + (dt.getUTCMilliseconds() < 10 
-                ? '00'+dt.getUTCMilliseconds() 
-                : dt.getUTCMilliseconds() < 100 
-                    ? '0'+dt.getUTCMilliseconds() 
-                    : dt.getUTCMilliseconds());
+        + (dt.getUTCSeconds() < 10 ? '0'+dt.getUTCSeconds() : dt.getUTCSeconds()) ;
 }
 var timer = function(){
     if ($('#to').val()=='' || $('#from').val()==''){return 0;}

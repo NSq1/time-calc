@@ -40,18 +40,20 @@ var timeBase = {
     y : 1000*60*60*24*365,
 }
 var getFrom = function(){
-    try{
-        return new Date(Date.parse($('.from.date').val()+' '+ $('.from.time').val()));
-    } catch(e){
-        return Date.now();
-    }
+    let result = new Date(Date.parse($('.from.date').val()));
+    let deltaTime = $('.from.time').val().split(':');
+    let hours = deltaTime[0]!=='' ? deltaTime[0] : 0;
+    let minutes = deltaTime.length>0 ? deltaTime[1] : 0;
+    let seconds =  deltaTime.length>1 ? deltaTime[2] : 0;
+    return new Date(result.setHours(hours, minutes, seconds));
 };
 var getTo = function(){
-    try{
-        return new Date(Date.parse($('.to.date').val()+' '+$('.to.time').val()));
-    } catch(e){
-        return Date.now();
-    }
+    let result = new Date(Date.parse($('.to.date').val()));
+    let deltaTime = $('.to.time').val().split(':');
+    let hours = deltaTime[0]!=='' ? deltaTime[0] : 0;
+    let minutes = deltaTime.length>0 ? deltaTime[1] : 0;
+    let seconds =  deltaTime.length>1 ? deltaTime[2] : 0;
+    return new Date(result.setHours(hours, minutes, seconds));
 };
 var formatter = function(timestamp){
     let dt = new Date(timestamp);
@@ -69,9 +71,14 @@ var formatTime = function(timestamp){
         + (dt.getUTCMinutes() < 10 ? '0'+dt.getUTCMinutes() : dt.getUTCMinutes()) + ':'
         + (dt.getUTCSeconds() < 10 ? '0'+dt.getUTCSeconds() : dt.getUTCSeconds()) ;
 }
+var getTimerType = function(){
+    return (getFrom().getTime()<getTo().getTime()?'future':getFrom().getTime()>getTo().getTime()?'past':'now');
+}
 var timer = function(){
     if ($('#to').val()=='' || $('#from').val()==''){return 0;}
-    return getTo() - getFrom();
+    let from = getFrom().getTime();
+    let to = getTo().getTime();
+    return from > to ? from - to : to - from;
 }
 var output = function(input){
     try{
@@ -85,13 +92,14 @@ var output = function(input){
         +   '<tr><td>to:</td><td colspan="3"> '+ getTo() +'</td></tr>'
         +   '<tr><th rowspan="2">ISO</th><td>from:</td><td colspan="3"> '+ getFrom().toISOString() +'</td></tr>'
         +   '<tr><td>to:</td><td colspan="3"> '+ getTo().toISOString() +'</td></tr>'
-        +   '<tr><th rowspan="5">OUTPUT</th><td>days:</td><td>'+Math.floor(input/timeBase.d)+'<td><td>with '+h+'[hours] '+m+'[minutes] '+s+'[s] '+ms+'[ms]</td></tr>'
+        +   '<tr><th rowspan="6">OUTPUT</th><td>type:</td><td colspan="3">'+getTimerType()+'</td></tr>'
+        +   '<tr><td>days:</td><td>'+Math.floor(input/timeBase.d)+'<td><td>with '+h+'[hours] '+m+'[minutes] '+s+'[s] '+ms+'[ms]</td></tr>'
         +   '<tr><td>hours:</td><td>'+Math.floor(input/timeBase.h)+'<td><td>with  '+m+'[minutes] '+s+'[s] '+ms+'[ms]</td></tr>'
         +   '<tr><td>minutes:</td><td>'+Math.floor(input/timeBase.m)+'<td><td>with  '+s+'[s] '+ms+'[ms]</td></tr>'
         +   '<tr><td>seconds:</td><td>'+Math.floor(input/timeBase.s)+'<td><td>with  '+ms+'[ms]</td></tr>'
         +   '<tr><td>miliseconds:</td><td>'+input+'</td><td></td><td></td></tr>'
         +   '</table>';
-    } catch (e){return 'one of dates is invalid!'}
+    } catch (e){return 'one of dates is invalid!<pre>' + e + '</pre>'}
 }
 var refreshOutput = function(){
     $('#output').html(output(timer()));

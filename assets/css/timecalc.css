@@ -10,6 +10,27 @@ input[type="button"]{
     background: #313335;
     border-color: #404848;
 }
+input.toggle.off[type="button"]{
+	color: #2288ff;
+    background: #313335;
+    border-color: #404848;
+}
+input.toggle.on[type="button"]{
+	color: #404848;
+    background: #2288ff;
+    border-color: #404848;
+}
 .ui-timepicker-standard a{
 	color:#d9d9d9;
+}
+.type .value[text="now"]{
+	color: #00daff;
+}
+
+.type .value[text="future"]{
+	color: #0eff00;
+}
+
+.type .value[text="past"]{
+	color: #ff3d00;
 }

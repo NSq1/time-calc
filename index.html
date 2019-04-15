@@ -366,7 +366,7 @@ if (from==='on'){
     $('.from .now').trigger('click');
 } else if (from==='delta' && delta!==undefined){
     timecalc.from(new Date(new Date().getTime()+Number(delta)*1000));
-} else if (from==='today' && today!==undefined){
+} else if (FROM==='today' && today!==undefined){
     timecalc.from(new Date(Math.floor(new Date().getTime()/timecalc.base.d)*timecalc.base.d+(Number(today)*1000)+(new Date().getTimezoneOffset()*timecalc.base.m)));
 }
 if (to==='on'){

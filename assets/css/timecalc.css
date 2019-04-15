@@ -5,6 +5,9 @@
 .output td:nth-child(1){
 	text-align: right;
 }
+.hidden {
+	display:none !important;
+}
 input[type="button"]{
 	color: #2288ff;
     background: #313335;
@@ -20,6 +23,11 @@ input.toggle.on[type="button"]{
     background: #2288ff;
     border-color: #404848;
 }
+input.date, 
+input.time {
+	width:6em;
+	margin:0.5em;
+}
 .ui-timepicker-standard a{
 	color:#d9d9d9;
 }
@@ -33,4 +41,10 @@ input.toggle.on[type="button"]{
 
 .type .value[text="past"]{
 	color: #ff3d00;
+}
+#progressbar .label{
+	position: absolute; 
+	text-align: center; 
+	font-size: smaller;
+	margin-top: 0.3em;
 }

@@ -5,24 +5,43 @@ toc: false
 <script>{% include time_calc_customize.js %}</script>
 <table class="timecalc">
     <tr>
-        <td>INPUT</td>
-        <td><table class="input">
+        <td style="width:20%">INPUT</td>
+        <td><table>
+            <tr><td style="width:20%"></td><td style="width:40%"></td><td style="width:40%"></td></tr>
             <tr class="from">
                 <td>FROM</th>
-                <td>
+                <td class="input" >
                     <input class="date" type="text"/>
                     <input class="time" type="text"/>
                     <input class="now" type="button" value="NOW"/>
-                    <input class="toggle from" type="button" value=" "/>
+                    <input class="toggle" type="button" value=" "/>
+                </td>
+                <td class="start hidden">
+                    <span class=""> begun on: </span> 
+                    <input class="date" type="text" disabled="true"/>
+                    <input class="time" type="text" disabled="true"/>
                 </td>
             </tr>
             <tr class="to">
                 <td>TO</th>
-                <td>
+                <td class="input" >
                     <input class="date" type="text"/>
                     <input class="time" type="text"/>
                     <input class="now" type="button" value="NOW"/>
-                    <input class="toggle to" type="button" value=" "/>
+                    <input class="toggle" type="button" value=" "/>
+                </td>
+                <td class="start hidden">
+                    <span class=""> begun on: </span> 
+                    <input class="date" type="text" disabled="true"/>
+                    <input class="time" type="text" disabled="true"/>
+                </td>   
+            </tr>
+            <tr class="progress hidden">
+                <td>PROGRESS</td>
+                <td colspan="2">             
+                    <div id="progressbar">
+                        <div class="label"> </div>
+                    </div>
                 </td>
             </tr>
         </table></td>
@@ -79,7 +98,7 @@ var GetURLParameter = function (sParam){
 
 
 $.getScript('//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js', function(){
-    $(".time").timepicker({
+    $("input.time").timepicker({
         timeFormat: 'HH:mm:ss',
         dynamic: false,
         dropdown: true,
@@ -88,9 +107,26 @@ $.getScript('//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker
     });
 });
 $.getScript('assets/js/jquery-ui.js', function(){
-    $( ".date" ).datepicker({
+    $( "input.date" ).datepicker({
         dateFormat: "yy-mm-dd",
-    }); 
+    });
+    $( "#progressbar" ).progressbar({
+        value: 0,
+    });
+    let width = $( "#progressbar" ).offsetWidth;
+    $( "#progressbar" ).find('.label').css('width',width+'px');
+    timecalc.repaint.progress = function(src){
+        if ($('.from .toggle').hasClass('hidden') && !($('.progress').hasClass('hidden'))){
+            ('.progress').toggleClass('hidden');
+        } 
+        $( "#progressbar" ).progressbar({
+            value: timecalc.progress.value(),
+        });
+        $( ".progress" )
+            .find('.label')
+            .css('width',$( "#progressbar" ).width()+'px')
+            .text(timecalc.progress.label());
+    };
 });
 
 var timecalc = {
@@ -117,24 +153,24 @@ var timecalc = {
         return new Date(result.setHours(hours, minutes, seconds));
     },
     set : function(target, value){
-        $(target).find('.date')
+        $(target).find('input.date')
             .val(timecalc.date(value))
             .trigger('change');
-        $(target).find('.time')
+        $(target).find('input.time')
             .val(timecalc.time(value))
             .trigger('change');
     },
     from : function(value){
         if (value!==undefined){
-            timecalc.set('.input .from', value);
+            timecalc.set('.from', value);
         }
-        return timecalc.get('.input .from');
+        return timecalc.get('.from');
     },
     to : function(value){
         if (value!==undefined){
-            timecalc.set('.input .to', value);
+            timecalc.set('.to', value);
         }
-        return timecalc.get('.input .to');
+        return timecalc.get('.to');
     },
     date : function(timestamp){
         let dt = new Date(timestamp);
@@ -148,20 +184,56 @@ var timecalc = {
             + (dt.getMinutes() < 10 ? '0'+dt.getMinutes() : dt.getMinutes()) + ':'
             + (dt.getSeconds() < 10 ? '0'+dt.getSeconds() : dt.getSeconds()) ;
     },
+    progress : {
+        value : function(){
+            let startFrom = timecalc.get('.from .start');
+            let from = timecalc.get('.from .input');
+            let to = timecalc.get('.to .input');    
+            if (startFrom.toString()!=="Invalid Date" && from.getTime()<to.getTime()){
+                return (from.getTime()-startFrom.getTime())/(to.getTime()-startFrom.getTime())*100;
+            } else {
+                return 100;
+            }
+        },
+
+        label : function(){
+            let startFrom = timecalc.get('.from .start');
+            let from = timecalc.get('.from .input');
+            let to = timecalc.get('.to .input');    
+            if (startFrom.toString()!=="Invalid Date" && from.getTime()<to.getTime()){
+                return (timecalc.timer.total.days() == 0 
+                            ? '' : timecalc.timer.total.days() + '[days] ')
+                    + (timecalc.timer.total.days() == 0 && timecalc.timer.parts.hours() == 0 
+                            ? '' : timecalc.timer.parts.hours()+'[h] ')
+                    + (timecalc.timer.total.days() == 0 
+                        && timecalc.timer.parts.hours() == 0 
+                        && timecalc.timer.parts.minutes() == 0
+                            ? '' : timecalc.timer.parts.minutes()+'[m] ')
+                    + timecalc.timer.parts.seconds()+'[s]';
+            } else {
+                return timecalc.timer.type;
+            };
+        },
+    },
     clock : {
         intervals : {},
         interval : function(target, state, frequency){
-            if (this.intervals[target]!==undefined){
-                clearInterval(this.intervals[target]);
+            if ($(target).attr('interval-id')===undefined){
+                $(target).attr('interval-id',$.now + Math.random());    
+            }
+            if (this.intervals[$(target).attr('interval-id')]!==undefined){
+                clearInterval(this.intervals[$(target).attr('interval-id')]);
+                $(target).parent().find('.start input').val('');
             }
             if (state === undefined || state){
                 timecalc.set(target, new Date());
-                this.intervals[target]=setInterval(
+                timecalc.set($(target).parent().find('.start'), new Date());
+                this.intervals[$(target).attr('interval-id')]=setInterval(
                         function(){
                             timecalc.set(target, new Date());
                         }, 
                         frequency===undefined ? 1000 : frequency);
-            };
+            }
         },
 
     },
@@ -175,10 +247,10 @@ var timecalc = {
         },
         determineType : function(){
             return timecalc.from().getTime()<timecalc.to().getTime()
-                ?'future'
+                ?'FUTURE'
                 :timecalc.from().getTime()>timecalc.to().getTime()
-                    ?'past'
-                    :'now';
+                    ?'PAST'
+                    :'NOW';
         },
         refresh : function(){
             this.ticks = this.calc();
@@ -219,9 +291,13 @@ var timecalc = {
                 this.values(src);
                 this.rest(src);
                 this.type(src);
+                this.progress(src);
             } catch (e){
                 console.log(e);
             }
+        },
+        progress : function(src){
+            
         },
         type : function(src){
             src.find('.output .type .value')
@@ -253,7 +329,7 @@ var timecalc = {
     }
 };  
 
-$('.from, .to').on('change', 
+$('input.date, input.time').on('change', 
     function(){
         timecalc.refresh();
     });
@@ -268,36 +344,39 @@ $('.now').on('click',
     })
 $('.toggle').on('click',
     function(){
-        if ($(this).hasClass('from')){
-            timecalc.toggle(this,function(state){
-                timecalc.clock.interval('.input .from',state,1000);
-            });
-        }
-        if ($(this).hasClass('to')){
-            timecalc.toggle(this,function(state){
-                timecalc.clock.interval('.input .to',state,1000);
-            });
-        }
+        let toggle = $(this)
+        timecalc.toggle(this,function(state){
+            let target = toggle.parent();
+            $(toggle).toggleClass('hidden');
+            $(target).parent().find('.start').toggleClass('hidden');
+            $('.toggle').toggleClass('hidden');
+            $( ".progress" ).toggleClass('hidden');
+            timecalc.clock.interval(target,state,1000);
+        });     
     });
-$(document).on('ready', 
-    function(){
-        let from = GetURLParameter('from');
-        let to = GetURLParameter('to');
-        let delta = GetURLParameter('delta');
-        if (from==='on'){
-            $('.from .toggle').trigger('click');
-        } else if (from==='now'){
-            $('.from .now').trigger('click');
-        } else if (from==='delta' && delta!==undefined){
-            timecalc.from(new Date(new Date().getTime()+Number(delta)*1000));
-        }
-        if (to==='on'){
-            $('.to .toggle').trigger('click');
-        } else if (to==='now'){
-            $('.to .now').trigger('click');
-        } else if (to==='delta' && delta!==undefined){
-            timecalc.to(new Date(new Date().getTime()+Number(delta)*1000));
-        }
-        console.log(from);
-    });
+
+       
+let from = GetURLParameter('from');
+let to = GetURLParameter('to');
+let delta = GetURLParameter('delta');
+let today = GetURLParameter('today');
+if (from==='on'){
+    $('.from .toggle').trigger('click');
+} else if (from==='now'){
+    $('.from .now').trigger('click');
+} else if (from==='delta' && delta!==undefined){
+    timecalc.from(new Date(new Date().getTime()+Number(delta)*1000));
+} else if (from==='today' && today!==undefined){
+    timecalc.from(new Date(Math.floor(new Date().getTime()/timecalc.base.d)*timecalc.base.d+(Number(today)*1000)+(new Date().getTimezoneOffset()*timecalc.base.m)));
+}
+if (to==='on'){
+    $('.to .toggle').trigger('click');
+} else if (to==='now'){
+    $('.to .now').trigger('click');
+} else if (to==='delta' && delta!==undefined){
+    timecalc.to(new Date(new Date().getTime()+Number(delta)*1000));
+} else if (to==='today' && today!==undefined){
+    timecalc.to(new Date(Math.floor(new Date().getTime()/timecalc.base.d)*timecalc.base.d+(Number(today)*1000)+(new Date().getTimezoneOffset()*timecalc.base.m)));
+}
+      
 </script>
